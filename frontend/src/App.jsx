@@ -3,8 +3,10 @@ import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { AppProvider, useApp } from './context/AppContext';
 import { AuthProvider } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
+import { useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import FloatingSOS from './components/FloatingSOS';
+import AuthPage from './pages/AuthPage';
 import SafetyTab from './pages/SafetyTab';
 import HealthHubTab from './pages/HealthHubTab';
 import SchemesTab from './pages/SchemesTab';
@@ -87,6 +89,7 @@ function SplashScreen({ isVisible }) {
 function AppContent() {
   const { isDark } = useTheme();
   const { isOnline, tab, setTab, t, language } = useApp();
+  const { authReady, isAuthenticated } = useAuth();
   const [showSplash, setShowSplash] = useState(true);
 
   // 1.5s Animated Splash / Loading Screen on first load
@@ -145,6 +148,42 @@ function AppContent() {
     }
   ];
 
+  const offlineBanner = !isOnline && (
+    <div
+      role="alert"
+      aria-live="polite"
+      className="w-full bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 text-white text-xs sm:text-sm font-semibold py-2 px-4 text-center shadow-md flex items-center justify-center gap-2 sticky top-0 z-50"
+    >
+      <WifiOff className="w-4 h-4 flex-shrink-0" />
+      <span>
+        {language === 'hi'
+          ? 'आप ऑफ़लाइन हैं। आपातकालीन हेल्पलाइन नंबर अभी भी उपलब्ध हैं।'
+          : 'You are offline. Emergency helplines still available.'}
+      </span>
+      <span className="hidden sm:inline-block px-2 py-0.5 rounded-full bg-white/20 text-[10px] font-bold uppercase tracking-wider">
+        112 & 181
+      </span>
+    </div>
+  );
+
+  if (!authReady) {
+    return (
+      <div className={`min-h-screen ${isDark ? 'dark' : ''} bg-slate-950`}>
+        <SplashScreen isVisible />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className={`min-h-screen ${isDark ? 'dark' : ''} bg-slate-50 dark:bg-slate-950 font-sans`}>
+        {offlineBanner}
+        <AuthPage />
+        <FloatingSOS />
+      </div>
+    );
+  }
+
   return (
     <div
       className={`min-h-screen ${
@@ -155,23 +194,7 @@ function AppContent() {
       <SplashScreen isVisible={showSplash} />
 
       {/* ─── Offline Banner at Top ──────────────────────────────── */}
-      {!isOnline && (
-        <div
-          role="alert"
-          aria-live="polite"
-          className="w-full bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 text-white text-xs sm:text-sm font-semibold py-2 px-4 text-center shadow-md flex items-center justify-center gap-2 sticky top-0 z-50 animate-in fade-in duration-300"
-        >
-          <WifiOff className="w-4 h-4 animate-pulse flex-shrink-0" />
-          <span>
-            {language === 'hi'
-              ? 'आप ऑफ़लाइन हैं। आपातकालीन हेल्पलाइन नंबर अभी भी उपलब्ध हैं।'
-              : 'You are offline. Emergency helplines still available.'}
-          </span>
-          <span className="hidden sm:inline-block px-2 py-0.5 rounded-full bg-white/20 text-[10px] font-bold uppercase tracking-wider">
-            112 & 181
-          </span>
-        </div>
-      )}
+      {offlineBanner}
 
       {/* ─── Top Navbar ─────────────────────────────────────────── */}
       <Navbar />

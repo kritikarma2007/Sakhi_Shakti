@@ -2,41 +2,6 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 
 export const AuthContext = createContext(null);
 
-const DEMO_CREDENTIALS = {
-  USER: {
-    email: 'demo@sakhishakti.in',
-    password: 'Demo@123',
-    name: 'Pooja Sharma',
-    role: 'USER',
-    state: 'Rajasthan',
-    language: 'hi'
-  },
-  DOCTOR: {
-    email: 'doctor@sakhishakti.in',
-    password: 'Demo@123',
-    name: 'Dr. Sunita Rao',
-    role: 'DOCTOR',
-    state: 'Madhya Pradesh',
-    language: 'hi'
-  },
-  VOLUNTEER: {
-    email: 'volunteer@sakhishakti.in',
-    password: 'Demo@123',
-    name: 'Anjali Verma',
-    role: 'VOLUNTEER',
-    state: 'Uttar Pradesh',
-    language: 'hi'
-  },
-  ADMIN: {
-    email: 'admin@sakhishakti.in',
-    password: 'Demo@123',
-    name: 'Sakhi Admin',
-    role: 'ADMIN',
-    state: 'Delhi',
-    language: 'en'
-  }
-};
-
 const getApiBase = () => {
   if (typeof window !== 'undefined') {
     if (import.meta.env.VITE_API_URL) {
@@ -51,23 +16,72 @@ const getApiBase = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  // ─── Initialize User from localStorage ─────────────────────────
-  const [user, setUser] = useState(() => {
-    try {
-      const storedToken = localStorage.getItem('sakhi_token');
-      const storedUser = localStorage.getItem('sakhi_user');
-      if (storedToken && storedUser) {
-        const parsed = JSON.parse(storedUser);
-        return { ...parsed, token: storedToken };
-      }
-    } catch (err) {
-      console.warn('Error reading stored auth state', err);
-    }
-    return null;
-  });
-
+  const [user, setUser] = useState(null);
+  const [authReady, setAuthReady] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const clearStoredSession = useCallback(() => {
+    setUser(null);
+    try {
+      localStorage.removeItem('sakhi_token');
+      localStorage.removeItem('sakhi_user');
+    } catch (err) {
+      console.warn('Error clearing stored authentication', err);
+    }
+  }, []);
+
+  const saveSession = useCallback((data) => {
+    if (!data?.token || !data?.user) {
+      throw new Error('The server returned an invalid sign-in response.');
+    }
+    const userData = { ...data.user, token: data.token };
+    setUser(userData);
+    try {
+      localStorage.setItem('sakhi_token', data.token);
+      localStorage.setItem('sakhi_user', JSON.stringify(data.user));
+    } catch (err) {
+      console.warn('Could not persist authentication to localStorage', err);
+    }
+    return userData;
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    const verifyStoredSession = async () => {
+      let token = null;
+      try {
+        token = localStorage.getItem('sakhi_token');
+      } catch (err) {
+        console.warn('Unable to read stored authentication', err);
+      }
+
+      if (!token) {
+        if (active) setAuthReady(true);
+        return;
+      }
+
+      try {
+        const response = await fetch(`${getApiBase()}/api/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (!response.ok) {
+          clearStoredSession();
+        } else {
+          const data = await response.json();
+          if (active) setUser({ ...data.user, token });
+        }
+      } catch (err) {
+        console.warn('Unable to verify saved session', err);
+        clearStoredSession();
+      } finally {
+        if (active) setAuthReady(true);
+      }
+    };
+
+    verifyStoredSession();
+    return () => { active = false; };
+  }, [clearStoredSession]);
 
   // ─── Login Function (POST /api/auth/login) ─────────────────────
   const login = useCallback(async (email, password) => {
@@ -92,77 +106,23 @@ export const AuthProvider = ({ children }) => {
         throw new Error(data.error || 'Login failed. Please check your credentials.');
       }
 
-      const userData = {
-        ...data.user,
-        token: data.token
-      };
-
-      setUser(userData);
-      try {
-        localStorage.setItem('sakhi_token', data.token);
-        localStorage.setItem('sakhi_user', JSON.stringify(data.user));
-      } catch (e) {
-        console.warn('Could not persist auth to localStorage', e);
-      }
-
-      return userData;
+      return saveSession(data);
     } catch (err) {
       setError(err.message);
       throw err;
     } finally {
       setLoading(false);
     }
-  }, []);
-
-  // ─── Quick Demo Login Function ─────────────────────────────────
-  const demoLogin = useCallback(async (roleInput = 'USER') => {
-    const roleKey = (roleInput || 'USER').toUpperCase();
-    const demoProfile = DEMO_CREDENTIALS[roleKey] || DEMO_CREDENTIALS.USER;
-
-    try {
-      // First try live backend login
-      return await login(demoProfile.email, demoProfile.password);
-    } catch (err) {
-      console.warn('[AuthContext] Backend login unavailable for demo, falling back to local demo profile:', err.message);
-
-      // Graceful offline / demo fallback
-      const mockToken = `demo_token_${roleKey.toLowerCase()}_${Date.now()}`;
-      const mockUser = {
-        _id: `demo_${roleKey.toLowerCase()}`,
-        name: demoProfile.name,
-        email: demoProfile.email,
-        role: demoProfile.role,
-        state: demoProfile.state,
-        language: demoProfile.language,
-        token: mockToken
-      };
-
-      setUser(mockUser);
-      try {
-        localStorage.setItem('sakhi_token', mockToken);
-        localStorage.setItem('sakhi_user', JSON.stringify(mockUser));
-      } catch (storageErr) {
-        console.warn('Error saving mock user to storage', storageErr);
-      }
-
-      return mockUser;
-    }
-  }, [login]);
+  }, [saveSession]);
 
   // ─── Logout Function ───────────────────────────────────────────
   const logout = useCallback(() => {
-    setUser(null);
+    clearStoredSession();
     setError(null);
-    try {
-      localStorage.removeItem('sakhi_token');
-      localStorage.removeItem('sakhi_user');
-    } catch (err) {
-      console.warn('Error clearing localStorage auth items', err);
-    }
-  }, []);
+  }, [clearStoredSession]);
 
   // ─── Register Function (Helper) ────────────────────────────────
-  const register = useCallback(async ({ name, email, password, role = 'USER', state = '', language = 'hi' }) => {
+  const register = useCallback(async ({ name, email, password, state = '', language = 'hi' }) => {
     setLoading(true);
     setError(null);
 
@@ -175,7 +135,7 @@ export const AuthProvider = ({ children }) => {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ name, email: email.trim(), password, role, state, language })
+        body: JSON.stringify({ name: name.trim(), email: email.trim(), password, state, language })
       });
 
       const data = await response.json();
@@ -184,27 +144,14 @@ export const AuthProvider = ({ children }) => {
         throw new Error(data.error || 'Registration failed');
       }
 
-      const userData = {
-        ...data.user,
-        token: data.token
-      };
-
-      setUser(userData);
-      try {
-        localStorage.setItem('sakhi_token', data.token);
-        localStorage.setItem('sakhi_user', JSON.stringify(data.user));
-      } catch (e) {
-        console.warn('Could not persist auth to localStorage', e);
-      }
-
-      return userData;
+      return saveSession(data);
     } catch (err) {
       setError(err.message);
       throw err;
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [saveSession]);
 
   // ─── Derived State ─────────────────────────────────────────────
   const isAuthenticated = Boolean(user && user.token);
@@ -213,13 +160,13 @@ export const AuthProvider = ({ children }) => {
     user,
     token: user?.token || null,
     isAuthenticated,
+    authReady,
     loading,
     error,
     login,
     logout,
-    demoLogin,
     register
-  }), [user, isAuthenticated, loading, error, login, logout, demoLogin, register]);
+  }), [user, isAuthenticated, authReady, loading, error, login, logout, register]);
 
   return (
     <AuthContext.Provider value={value}>
