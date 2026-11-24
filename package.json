@@ -1,0 +1,22 @@
+{
+  "name": "sakhishakti-monorepo",
+  "version": "1.0.0",
+  "description": "Rural Women's Safety, Health & Empowerment Platform",
+  "private": true,
+  "scripts": {
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+    "dev": "concurrently -n \"ML,API,WEB\" -c \"bgMagenta.bold,bgBlue.bold,bgGreen.bold\" \"npm run dev:ml\" \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:ml": "cd ml-service && uvicorn main:app --reload --port 8000",
+    "build": "cd frontend && npm run build",
+    "seed": "cd backend && node seed/initialData.js",
+    "train": "cd ml-service && python train_models.py"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
