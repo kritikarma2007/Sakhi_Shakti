@@ -7,8 +7,11 @@ const express = require('express');
 const { v4: uuidv4 } = require('uuid');
 const router = express.Router();
 const { isUsingFallback, jsonStore } = require('../db');
+const { authenticateToken } = require('../middleware/auth');
 let Donation;
 try { Donation = require('../models/Donation'); } catch {}
+
+router.use(authenticateToken);
 
 router.get('/', async (req, res) => {
   try {

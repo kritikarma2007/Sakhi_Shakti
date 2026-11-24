@@ -27,11 +27,13 @@ import {
   Gift
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 
 const API_BASE = import.meta.env.VITE_API_URL || '';
 
 export default function SupportTab() {
   const { t, language } = useApp();
+  const { token } = useAuth();
   const isHindi = language === 'hi';
 
   // ─── Active Sub-section ──────────────────────────────────────────
@@ -96,7 +98,9 @@ export default function SupportTab() {
   const fetchRequests = useCallback(async () => {
     setLoadingRequests(true);
     try {
-      const res = await fetch(`${API_BASE}/api/support-requests`);
+      const res = await fetch(`${API_BASE}/api/support-requests`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       if (res.ok) {
         const data = await res.json();
         setRequests(Array.isArray(data) ? data : []);
@@ -106,13 +110,15 @@ export default function SupportTab() {
     } finally {
       setLoadingRequests(false);
     }
-  }, []);
+  }, [token]);
 
   // ─── Fetch Donations (Money & Clothes) ───────────────────────────
   const fetchMoneyDonations = useCallback(async () => {
     setLoadingMoney(true);
     try {
-      const res = await fetch(`${API_BASE}/api/donations?type=MONEY`);
+      const res = await fetch(`${API_BASE}/api/donations?type=MONEY`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       if (res.ok) {
         const data = await res.json();
         setMoneyDonations(Array.isArray(data) ? data : []);
@@ -122,12 +128,14 @@ export default function SupportTab() {
     } finally {
       setLoadingMoney(false);
     }
-  }, []);
+  }, [token]);
 
   const fetchClothesDonations = useCallback(async () => {
     setLoadingClothes(true);
     try {
-      const res = await fetch(`${API_BASE}/api/donations?type=CLOTHES`);
+      const res = await fetch(`${API_BASE}/api/donations?type=CLOTHES`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       if (res.ok) {
         const data = await res.json();
         setClothesDonations(Array.isArray(data) ? data : []);
@@ -137,7 +145,7 @@ export default function SupportTab() {
     } finally {
       setLoadingClothes(false);
     }
-  }, []);
+  }, [token]);
 
   useEffect(() => {
     fetchRequests();
@@ -182,7 +190,7 @@ export default function SupportTab() {
 
       const res = await fetch(`${API_BASE}/api/support-requests`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify(payload)
       });
 
@@ -265,7 +273,7 @@ export default function SupportTab() {
 
       const res = await fetch(`${API_BASE}/api/donations`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify(payload)
       });
 
@@ -319,7 +327,7 @@ export default function SupportTab() {
 
       const res = await fetch(`${API_BASE}/api/donations`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify(payload)
       });
 

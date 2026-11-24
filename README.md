@@ -150,13 +150,17 @@ POST /predict-cycle            → Menstrual cycle prediction
 ```
 POST /api/auth/register        → Register new user
 POST /api/auth/login           → Login
+GET  /api/auth/me              → Validate current session (Bearer token)
 GET  /api/health-cards         → Age-wise health cards
 GET  /api/schemes              → Government schemes (filterable)
-GET  /api/support-requests     → Community support requests
-POST /api/support-requests     → Create support request
-GET  /api/donations            → Donation records
-POST /api/donations            → Create donation record
+GET  /api/support-requests     → Community support requests (Bearer token)
+POST /api/support-requests     → Create support request (Bearer token)
+PATCH /api/support-requests/:id/status → Update status (VOLUNTEER/ADMIN token)
+GET  /api/donations            → Donation records (Bearer token)
+POST /api/donations            → Create donation record (Bearer token)
 ```
+
+New sign-ups receive the `USER` role. Doctor, volunteer, and administrator accounts must be provisioned by an administrator; public registration cannot assign privileged roles. The app requires a valid session for its main tabs, while the emergency SOS controls remain available before sign-in.
 
 ---
 

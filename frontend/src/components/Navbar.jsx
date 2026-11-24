@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
@@ -14,16 +14,8 @@ import {
   WifiOff,
   Menu,
   X,
-  ChevronDown,
-  User,
-  Stethoscope,
-  HeartHandshake,
-  ShieldAlert,
-  Sparkles,
-  Check,
   LogOut,
-  PhoneCall,
-  Bell
+  PhoneCall
 } from 'lucide-react';
 
 const TABS = [
@@ -61,84 +53,18 @@ const TABS = [
   }
 ];
 
-const ROLES = [
-  {
-    id: 'USER',
-    label: 'User / Citizen',
-    hindiLabel: 'नागरिक / महिला',
-    description: 'Access SOS, health tools & government schemes',
-    icon: User,
-    color: 'text-pink-600 dark:text-pink-400',
-    bg: 'bg-pink-50 dark:bg-pink-950/40'
-  },
-  {
-    id: 'DOCTOR',
-    label: 'Doctor / Specialist',
-    hindiLabel: 'डॉक्टर / विशेषज्ञ',
-    description: 'Offer telehealth consultations & reviews',
-    icon: Stethoscope,
-    color: 'text-emerald-600 dark:text-emerald-400',
-    bg: 'bg-emerald-50 dark:bg-emerald-950/40'
-  },
-  {
-    id: 'VOLUNTEER',
-    label: 'Volunteer / NGO',
-    hindiLabel: 'स्वयंसेवक / साथी',
-    description: 'Assist in community pickups & local aid',
-    icon: HeartHandshake,
-    color: 'text-purple-600 dark:text-purple-400',
-    bg: 'bg-purple-50 dark:bg-purple-950/40'
-  },
-  {
-    id: 'ADMIN',
-    label: 'Admin / Coordinator',
-    hindiLabel: 'व्यवस्थापक / एडमिन',
-    description: 'Manage schemes, verifications & alerts',
-    icon: ShieldAlert,
-    color: 'text-blue-600 dark:text-blue-400',
-    bg: 'bg-blue-50 dark:bg-blue-950/40'
-  }
-];
-
 export default function Navbar() {
   const { language, setLanguage, t, isOnline, tab, setTab } = useApp();
-  const { theme, toggleTheme, isDark } = useTheme();
-  const { user, demoLogin, logout, isAuthenticated } = useAuth();
+  const { toggleTheme, isDark } = useTheme();
+  const { user, logout } = useAuth();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
-  const dropdownRef = useRef(null);
-
-  // Close role dropdown when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setRoleDropdownOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   // Close mobile drawer on route/tab change
   const handleTabSelect = (tabId) => {
     setTab(tabId);
     setMobileMenuOpen(false);
   };
-
-  const handleRoleSelect = async (roleId) => {
-    try {
-      await demoLogin(roleId);
-      setRoleDropdownOpen(false);
-      setMobileMenuOpen(false);
-    } catch (err) {
-      console.error('Role switch failed:', err);
-    }
-  };
-
-  const currentRole = (user?.role || 'USER').toUpperCase();
-  const currentRoleObj = ROLES.find((r) => r.id === currentRole) || ROLES[0];
-  const CurrentRoleIcon = currentRoleObj.icon;
 
   return (
     <header className="sticky top-0 z-40 w-full transition-colors duration-200">
@@ -273,91 +199,15 @@ export default function Navbar() {
               )}
             </button>
 
-            {/* Role Switcher Dropdown */}
-            <div className="relative" ref={dropdownRef}>
-              <button
-                onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
-                className="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-full border border-pink-200 dark:border-slate-700 bg-gradient-to-r from-pink-50 via-purple-50 to-pink-50 dark:from-slate-800 dark:to-slate-800/90 text-xs font-bold text-gray-800 dark:text-gray-200 shadow-sm hover:shadow transition-all active:scale-95"
-                aria-expanded={roleDropdownOpen}
-                aria-haspopup="true"
-              >
-                <span className={`p-1 rounded-full ${currentRoleObj.bg}`}>
-                  <CurrentRoleIcon className={`w-3.5 h-3.5 ${currentRoleObj.color}`} />
-                </span>
-                <span className="hidden sm:inline font-semibold">
-                  {currentRoleObj.id}
-                </span>
-                <ChevronDown
-                  className={`w-3.5 h-3.5 text-gray-500 transition-transform duration-200 ${
-                    roleDropdownOpen ? 'rotate-180' : ''
-                  }`}
-                />
-              </button>
-
-              {/* Dropdown Menu */}
-              {roleDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-slate-800 py-2.5 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                  <div className="px-4 py-2 border-b border-gray-100 dark:border-slate-800">
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                      {language === 'hi' ? 'भूमिका चयन (स्विच करें)' : 'Switch User Role'}
-                    </p>
-                    <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mt-0.5 truncate">
-                      {user?.name ? `${user.name} (${currentRole})` : `Current: ${currentRole}`}
-                    </p>
-                  </div>
-
-                  <div className="p-1.5 space-y-1">
-                    {ROLES.map((role) => {
-                      const Icon = role.icon;
-                      const isSelected = currentRole === role.id;
-                      return (
-                        <button
-                          key={role.id}
-                          onClick={() => handleRoleSelect(role.id)}
-                          className={`w-full flex items-start gap-3 p-2.5 rounded-xl text-left transition-all ${
-                            isSelected
-                              ? 'bg-pink-50 dark:bg-pink-950/40 border border-pink-200 dark:border-pink-900/50'
-                              : 'hover:bg-gray-50 dark:hover:bg-slate-800/60'
-                          }`}
-                        >
-                          <div className={`p-2 rounded-lg ${role.bg} mt-0.5`}>
-                            <Icon className={`w-4 h-4 ${role.color}`} />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between">
-                              <span className="text-xs font-bold text-gray-800 dark:text-gray-100">
-                                {language === 'hi' ? role.hindiLabel : role.label}
-                              </span>
-                              {isSelected && (
-                                <Check className="w-4 h-4 text-pink-600 dark:text-pink-400" />
-                              )}
-                            </div>
-                            <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate mt-0.5">
-                              {role.description}
-                            </p>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  {isAuthenticated && (
-                    <div className="pt-2 mt-1 border-t border-gray-100 dark:border-slate-800 px-2">
-                      <button
-                        onClick={() => {
-                          logout();
-                          setRoleDropdownOpen(false);
-                        }}
-                        className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition-colors"
-                      >
-                        <LogOut className="w-3.5 h-3.5" />
-                        <span>{t('auth.logout', 'Sign Out')}</span>
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
+            <button
+              onClick={logout}
+              className="flex items-center gap-2 rounded-full border border-rose-200 bg-white/90 px-3 py-2 text-xs font-bold text-rose-700 shadow-sm hover:bg-rose-50 dark:border-rose-900/60 dark:bg-slate-800 dark:text-rose-300 dark:hover:bg-rose-950/40"
+              title={user?.name || t('auth.logout', 'Sign Out')}
+              aria-label={t('auth.logout', 'Sign Out')}
+            >
+              <LogOut className="h-4 w-4" />
+              <span className="hidden sm:inline">{t('auth.logout', 'Sign Out')}</span>
+            </button>
 
             {/* Mobile Menu Hamburger Button */}
             <button
