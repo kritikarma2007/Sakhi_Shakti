@@ -1,0 +1,261 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ═══════════════════════════════════════════════════════════════
+   SakhiShakti Design System & Theme Tokens
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Brand Palette */
+  --sakhi-pink: #ec4899;
+  --sakhi-pink-dark: #be185d;
+  --sakhi-pink-light: #fdf2f8;
+  --sakhi-purple: #8b5cf6;
+  --sakhi-purple-dark: #6d28d9;
+  --sakhi-purple-light: #f5f3ff;
+  --sakhi-rose: #f43f5e;
+  --sakhi-teal: #0d9488;
+  --sakhi-amber: #f59e0b;
+  --sakhi-red: #ef4444;
+
+  /* Theme Backgrounds */
+  --bg-primary: #fffafb;
+  --bg-gradient-start: #fff1f2;
+  --bg-gradient-mid: #fdf4ff;
+  --bg-gradient-end: #f0fdf4;
+
+  /* Text Colors */
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-muted: #9ca3af;
+
+  /* Cards & Surfaces */
+  --card-bg: rgba(255, 255, 255, 0.88);
+  --card-border: rgba(255, 255, 255, 0.65);
+  --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+
+  /* Glassmorphism */
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.45);
+  --glass-shadow: 0 8px 32px 0 rgba(236, 72, 153, 0.08);
+}
+
+.dark {
+  /* Dark Brand Palette */
+  --sakhi-pink: #f472b6;
+  --sakhi-pink-dark: #ec4899;
+  --sakhi-pink-light: #831843;
+  --sakhi-purple: #a78bfa;
+  --sakhi-purple-dark: #8b5cf6;
+  --sakhi-purple-light: #4c1d95;
+  --sakhi-rose: #fb7185;
+  --sakhi-teal: #14b8a6;
+  --sakhi-amber: #fbbf24;
+  --sakhi-red: #f87171;
+
+  /* Theme Backgrounds */
+  --bg-primary: #0b0f19;
+  --bg-gradient-start: #0b0f19;
+  --bg-gradient-mid: #15102a;
+  --bg-gradient-end: #0f172a;
+
+  /* Text Colors */
+  --text-primary: #f9fafb;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+
+  /* Cards & Surfaces */
+  --card-bg: rgba(17, 24, 39, 0.85);
+  --card-border: rgba(255, 255, 255, 0.08);
+  --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+
+  /* Glassmorphism */
+  --glass-bg: rgba(15, 23, 42, 0.78);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Mobile-First Base Styles
+   ═══════════════════════════════════════════════════════════════ */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-mid) 50%, var(--bg-gradient-end) 100%);
+  background-attachment: fixed;
+  color: var(--text-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Glassmorphism Styles
+   ═══════════════════════════════════════════════════════════════ */
+
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-dark {
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Leaflet Map Container Fix
+   ═══════════════════════════════════════════════════════════════ */
+
+.leaflet-container {
+  z-index: 1 !important;
+  width: 100%;
+  height: 100%;
+  border-radius: 0.75rem;
+  font-family: inherit;
+}
+
+.leaflet-pane {
+  z-index: 1 !important;
+}
+
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 2 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Custom Scrollbar
+   ═══════════════════════════════════════════════════════════════ */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.45);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(107, 114, 128, 0.75);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Smooth Transitions
+   ═══════════════════════════════════════════════════════════════ */
+
+button,
+input,
+select,
+textarea,
+a {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SOS Button Animation (Pulsing Red Glow)
+   ═══════════════════════════════════════════════════════════════ */
+
+@keyframes sosPulsingGlow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.75), 0 0 25px rgba(239, 68, 68, 0.5);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 28px rgba(239, 68, 68, 0), 0 0 50px rgba(239, 68, 68, 0.85);
+    transform: scale(1.04);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0), 0 0 25px rgba(239, 68, 68, 0.5);
+    transform: scale(1);
+  }
+}
+
+.sos-pulse-animation {
+  animation: sosPulsingGlow 2s infinite ease-in-out;
+}
+
+.sos-pulse-animation:hover {
+  animation-duration: 1.2s;
+}
+
+.sos-pulse-animation:active {
+  transform: scale(0.96);
+}
+
+/* Secondary Glow Animations */
+@keyframes sakhiPinkPulse {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(236, 72, 153, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(236, 72, 153, 0.75);
+  }
+}
+
+.sakhi-glow {
+  animation: sakhiPinkPulse 2.5s infinite ease-in-out;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Card Hover Effects (Lift and Shadow)
+   ═══════════════════════════════════════════════════════════════ */
+
+.card-hover {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.25s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+              0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.dark .card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5),
+              0 10px 10px -5px rgba(0, 0, 0, 0.3);
+}
+
+/* Safe Area Paddings for Mobile Devices */
+.safe-area-bottom {
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 4.5rem);
+}
