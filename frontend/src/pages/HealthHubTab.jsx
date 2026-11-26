@@ -210,11 +210,11 @@ export default function HealthHubTab() {
   } catch (err) {}
   const { socket, isConnected } = socketCtx || {};
 
-  let speechHook = { speak: () => {}, stop: () => {}, isSpeaking: false, isSupported: false };
+  let speechHook = { speak: () => {}, stop: () => {}, isSpeaking: false, isSupported: false, speechError: null };
   try {
     speechHook = useSpeech();
   } catch (err) {}
-  const { speak, stop, isSpeaking, isSupported } = speechHook || {};
+  const { speak, stop, isSpeaking, isSupported, speechError } = speechHook || {};
 
   // ─── Sub-Tab Navigation State ───────────────────────────────────────────
   // 'cards' | 'period' | 'pcos' | 'doctor'
@@ -779,6 +779,14 @@ export default function HealthHubTab() {
           </div>
         )}
       </div>
+
+      {speechError === 'missing-hindi-voice' && (
+        <div role="status" className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100">
+          {language === 'hi'
+            ? 'इस डिवाइस में हिंदी टेक्स्ट-टू-स्पीच आवाज़ उपलब्ध नहीं है, इसलिए गलत अंग्रेज़ी आवाज़ में नहीं पढ़ा गया। Windows में Settings → Time & language → Language & region → Hindi → Language options में Speech इंस्टॉल करें, फिर ब्राउज़र दोबारा खोलें।'
+            : 'A Hindi text-to-speech voice is not available on this device, so the Hindi text was not read with an incorrect English voice. In Windows, install Speech under Settings → Time & language → Language & region → Hindi → Language options, then restart the browser.'}
+        </div>
+      )}
 
       {/* ─── Horizontal Scrollable Tab Pills ──────────────────────────────── */}
       <div className="relative">
