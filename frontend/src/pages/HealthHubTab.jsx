@@ -277,7 +277,7 @@ export default function HealthHubTab() {
     };
   }, [selectedAgeGroup]);
 
-  // Handle Speech for a Card in Hindi
+  // Speak the card content in the currently selected app language.
   const handleListenCard = (card, e) => {
     e.stopPropagation();
 
@@ -288,25 +288,32 @@ export default function HealthHubTab() {
       return;
     }
 
-    // Build Hindi text payload
-    const title = card.title?.hi || card.title?.en || 'स्वास्थ्य कार्ड';
+    const isHindi = language === 'hi';
+    const langKey = isHindi ? 'hi' : 'en';
+    const title = card.title?.[langKey] || card.title?.[isHindi ? 'en' : 'hi'] || (isHindi ? 'स्वास्थ्य कार्ड' : 'Health card');
+    const getLocalizedText = (item) => {
+      if (typeof item === 'string') return item;
+      return item?.[langKey] || item?.[isHindi ? 'en' : 'hi'] || '';
+    };
     const symptoms = (card.symptoms || [])
-      .map(s => (typeof s === 'string' ? s : s.hi || s.en))
+      .map(getLocalizedText)
       .join(', ');
     const prevention = (card.prevention || [])
-      .map(p => (typeof p === 'string' ? p : p.hi || p.en))
+      .map(getLocalizedText)
       .join(', ');
     const remedies = (card.homeRemedies || [])
-      .map(r => (typeof r === 'string' ? r : r.hi || r.en))
+      .map(getLocalizedText)
       .join(', ');
     const redFlags = (card.redFlags || [])
-      .map(rf => (typeof rf === 'string' ? rf : rf.hi || rf.en))
+      .map(getLocalizedText)
       .join(', ');
 
-    const speechText = `${title}। मुख्य लक्षण: ${symptoms}। रोकथाम और बचाव: ${prevention}। घरेलू उपाय: ${remedies}। चेतावनी संकेत: ${redFlags}`;
+    const speechText = isHindi
+      ? `${title}। मुख्य लक्षण: ${symptoms}। रोकथाम और बचाव: ${prevention}। घरेलू उपाय: ${remedies}। चेतावनी संकेत: ${redFlags}`
+      : `${title}. Key symptoms: ${symptoms}. Prevention: ${prevention}. Home care: ${remedies}. Warning signs: ${redFlags}.`;
 
     setCurrentlySpeakingCardId(card._id);
-    speak(speechText, 'hi-IN');
+    speak(speechText, isHindi ? 'hi-IN' : 'en-IN');
   };
 
   // Reset speaking card tracking if speech finishes
@@ -922,10 +929,10 @@ export default function HealthHubTab() {
                           </div>
                         </div>
 
-                        {/* Listen Button (Hindi Voice) */}
+                        {/* Listen in the selected app language */}
                         <button
                           onClick={(e) => handleListenCard(card, e)}
-                          title={language === 'hi' ? 'यह जानकारी हिंदी में सुनें' : 'Listen to this card in Hindi'}
+                          title={language === 'hi' ? 'यह जानकारी हिंदी में सुनें' : 'Listen to this card in English'}
                           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition shrink-0 ${
                             isThisSpeaking
                               ? 'bg-rose-600 text-white animate-pulse'
@@ -940,7 +947,7 @@ export default function HealthHubTab() {
                           ) : (
                             <>
                               <Volume2 className="w-3.5 h-3.5" />
-                              <span>सुनिए (Listen)</span>
+                              <span>{language === 'hi' ? 'सुनिए' : 'Listen'}</span>
                             </>
                           )}
                         </button>
@@ -1270,7 +1277,7 @@ export default function HealthHubTab() {
                       const msg = language === 'hi'
                         ? `आपकी अगली अनुमानित माहवारी तिथि है ${periodResult.next_period_date}। ओव्यूलेशन का दिन ${periodResult.ovulation_date} है। ${periodResult.alert_message_hi}`
                         : `Your predicted next period is on ${periodResult.next_period_date}. Ovulation is around ${periodResult.ovulation_date}. ${periodResult.alert_message_en}`;
-                      speak(msg, 'hi-IN');
+                      speak(msg, language === 'hi' ? 'hi-IN' : 'en-IN');
                     }}
                     className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-rose-600 text-white hover:bg-rose-700 transition"
                   >
@@ -1571,15 +1578,15 @@ export default function HealthHubTab() {
                     <span>{language === 'hi' ? 'सलाह एवं मार्गदर्शन:' : 'Clinical Guidance:'}</span>
                   </span>
                   <p className="text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
-                    {pcosResult.guidance_hi}
-                  </p>
-                  <p className="text-gray-500 dark:text-gray-400 italic text-[11px]">
-                    {pcosResult.guidance_en}
+                    {language === 'hi' ? pcosResult.guidance_hi : pcosResult.guidance_en}
                   </p>
 
                   <div className="pt-2">
                     <button
-                      onClick={() => speak(pcosResult.guidance_hi, 'hi-IN')}
+                      onClick={() => speak(
+                        language === 'hi' ? pcosResult.guidance_hi : pcosResult.guidance_en,
+                        language === 'hi' ? 'hi-IN' : 'en-IN'
+                      )}
                       className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
                     >
                       <Volume2 className="w-3.5 h-3.5" />
