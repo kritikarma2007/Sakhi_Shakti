@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Activity,
   AlertCircle,
@@ -15,7 +15,8 @@ import {
   ShieldCheck,
   Sparkles,
   Sun,
-  UserRound
+  UserRound,
+  X
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
@@ -27,6 +28,7 @@ export default function AuthPage() {
   const { login, register, loading } = useAuth();
   const isHindi = language === 'hi';
   const [mode, setMode] = useState('login');
+  const [authOpen, setAuthOpen] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [state, setState] = useState('');
@@ -36,6 +38,21 @@ export default function AuthPage() {
   const [error, setError] = useState('');
 
   const isSignup = mode === 'signup';
+
+  useEffect(() => {
+    if (!authOpen) return undefined;
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape' && !loading) setAuthOpen(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [authOpen, loading]);
+
+  const openAuth = (nextMode) => {
+    setMode(nextMode);
+    setError('');
+    setAuthOpen(true);
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -58,7 +75,8 @@ export default function AuthPage() {
 
   const copy = isHindi
     ? {
-        welcome: 'आपकी सुरक्षा और स्वास्थ्य, एक ही जगह',
+        welcome: 'आपकी दुनिया। आपकी शक्ति।',
+        description: 'स्वास्थ्य जानकारी, सुरक्षा और समुदाय का सहयोग — सब कुछ आपकी अपनी भाषा में।',
         subtitle: 'अपने SakhiShakti खाते में साइन इन करें',
         signupSubtitle: 'अपना सुरक्षित SakhiShakti खाता बनाएं',
         login: 'साइन इन',
@@ -70,6 +88,8 @@ export default function AuthPage() {
         confirm: 'पासवर्ड की पुष्टि करें',
         submitLogin: 'साइन इन करें',
         submitSignup: 'खाता बनाएं',
+        openLogin: 'लॉग इन',
+        openSignup: 'साइन अप',
         switchLogin: 'पहले से खाता है? साइन इन करें',
         switchSignup: 'नए हैं? खाता बनाएं',
         minPassword: 'कम से कम 8 अक्षर',
@@ -77,7 +97,8 @@ export default function AuthPage() {
         working: 'कृपया प्रतीक्षा करें…'
       }
     : {
-        welcome: 'Safety, health, and support in one place',
+        welcome: 'Your world. Your strength.',
+        description: 'Health guidance, everyday safety, and community support — made for you, in your language.',
         subtitle: 'Sign in to your SakhiShakti account',
         signupSubtitle: 'Create your secure SakhiShakti account',
         login: 'Log in',
@@ -89,6 +110,8 @@ export default function AuthPage() {
         confirm: 'Confirm password',
         submitLogin: 'Sign in',
         submitSignup: 'Create account',
+        openLogin: 'Log in',
+        openSignup: 'Sign up',
         switchLogin: 'Already have an account? Log in',
         switchSignup: 'New to SakhiShakti? Sign up',
         minPassword: 'At least 8 characters',
@@ -117,6 +140,20 @@ export default function AuthPage() {
         <div className="flex items-center gap-2">
           <button
             type="button"
+            onClick={() => openAuth('login')}
+            className="rounded-full border border-pink-200 bg-white/80 px-3 py-2 text-xs font-bold text-pink-700 shadow-sm transition hover:-translate-y-0.5 hover:border-pink-300 hover:bg-pink-50 hover:shadow-md dark:border-pink-900/60 dark:bg-slate-900/80 dark:text-pink-300 dark:hover:bg-pink-950/40 sm:px-4"
+          >
+            {copy.openLogin}
+          </button>
+          <button
+            type="button"
+            onClick={() => openAuth('signup')}
+            className="rounded-full bg-gradient-to-r from-pink-600 via-rose-500 to-purple-600 px-3 py-2 text-xs font-bold text-white shadow-md shadow-pink-600/20 transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-pink-600/30 sm:px-4"
+          >
+            {copy.openSignup}
+          </button>
+          <button
+            type="button"
             onClick={() => setLanguage(isHindi ? 'en' : 'hi')}
             className="rounded-full border border-slate-200 bg-white/80 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-white dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-200"
             aria-label={isHindi ? 'Switch to English' : 'हिंदी में बदलें'}
@@ -134,8 +171,8 @@ export default function AuthPage() {
         </div>
       </div>
 
-      <div className="relative mx-auto mt-8 grid w-full max-w-7xl items-center gap-8 lg:mt-12 lg:grid-cols-[1.05fr_0.8fr] lg:gap-16">
-        <section className="auth-hero order-2 px-2 pb-10 text-center lg:order-1 lg:px-0 lg:pb-0 lg:text-left">
+      <div className="relative mx-auto mt-8 flex w-full max-w-7xl flex-col items-center lg:mt-10">
+        <section className="auth-hero w-full px-2 pb-10 text-center lg:px-0 lg:pb-8">
           <div className="auth-art mx-auto mb-8" aria-hidden="true">
             <div className="auth-art-orbit auth-art-orbit-outer" />
             <div className="auth-art-orbit auth-art-orbit-inner" />
@@ -164,7 +201,7 @@ export default function AuthPage() {
             <Sparkles className="auth-sparkle auth-sparkle-two h-4 w-4 text-pink-400" />
           </div>
 
-          <div className="mx-auto max-w-2xl lg:mx-0">
+          <div className="mx-auto max-w-3xl">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-pink-200/80 bg-white/65 px-4 py-2 text-xs font-bold tracking-wide text-pink-700 shadow-sm backdrop-blur dark:border-pink-900/60 dark:bg-slate-900/60 dark:text-pink-300">
               <Heart className="h-4 w-4 fill-current" />
               {isHindi ? 'आपकी साथी, हर कदम पर' : 'YOUR COMPANION, EVERY STEP'}
@@ -176,12 +213,10 @@ export default function AuthPage() {
                 <>Your world.<br /><span className="auth-gradient-text">Your strength.</span></>
               )}
             </h1>
-            <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-slate-600 dark:text-slate-300 sm:text-lg lg:mx-0">
-              {isHindi
-                ? 'स्वास्थ्य जानकारी, सुरक्षा और समुदाय का सहयोग — सब कुछ आपकी अपनी भाषा में।'
-                : 'Health guidance, everyday safety, and community support — made for you, in your language.'}
+            <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-300 sm:text-lg">
+              {copy.description}
             </p>
-            <div className="mt-7 flex flex-wrap justify-center gap-2.5 lg:justify-start">
+            <div className="mt-7 flex flex-wrap justify-center gap-2.5">
               {[
                 { label: isHindi ? '24/7 सुरक्षा' : '24/7 Safety', icon: ShieldCheck },
                 { label: isHindi ? 'स्वास्थ्य साथी' : 'Health companion', icon: Heart },
@@ -193,10 +228,48 @@ export default function AuthPage() {
                 </span>
               ))}
             </div>
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => openAuth('signup')}
+                className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-pink-600 via-rose-500 to-purple-600 px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-pink-600/25 transition hover:-translate-y-1 hover:shadow-xl hover:shadow-pink-600/30"
+              >
+                {copy.openSignup}
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </button>
+              <button
+                type="button"
+                onClick={() => openAuth('login')}
+                className="inline-flex items-center gap-2 rounded-full border border-pink-200 bg-white/80 px-6 py-3.5 text-sm font-bold text-pink-700 shadow-sm backdrop-blur transition hover:-translate-y-1 hover:border-pink-300 hover:bg-white hover:shadow-lg dark:border-slate-700 dark:bg-slate-900/75 dark:text-pink-300 dark:hover:border-pink-800 dark:hover:bg-slate-800"
+              >
+                {copy.openLogin}
+              </button>
+            </div>
           </div>
         </section>
 
-        <section className="auth-form-card card-hover order-1 mx-auto w-full max-w-md rounded-[1.75rem] border border-white/80 bg-white/85 p-6 shadow-2xl shadow-pink-900/10 backdrop-blur-2xl dark:border-slate-700/80 dark:bg-slate-900/85 sm:p-8 lg:order-2">
+        {authOpen && (
+        <div
+          className="fixed inset-0 z-[70] flex items-center justify-center overflow-y-auto bg-slate-950/55 p-4 backdrop-blur-md animate-in fade-in duration-200"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget && !loading) setAuthOpen(false);
+          }}
+        >
+        <section
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="auth-dialog-title"
+          className="auth-form-card card-hover relative my-auto w-full max-w-md rounded-[1.75rem] border border-white/80 bg-white/95 p-6 shadow-2xl shadow-pink-900/20 backdrop-blur-2xl dark:border-slate-700/80 dark:bg-slate-900/95 sm:p-8"
+        >
+          <button
+            type="button"
+            onClick={() => setAuthOpen(false)}
+            disabled={loading}
+            className="absolute right-4 top-4 rounded-full border border-slate-200 bg-white/80 p-2 text-slate-500 transition hover:rotate-90 hover:bg-pink-50 hover:text-pink-600 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+            aria-label={isHindi ? 'फॉर्म बंद करें' : 'Close form'}
+          >
+            <X className="h-4 w-4" />
+          </button>
           <div className="mb-6">
             <p className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-pink-600 dark:text-pink-400">
               {isSignup ? copy.signup : copy.login}
@@ -284,6 +357,8 @@ export default function AuthPage() {
             {copy.secure}
           </p>
         </section>
+        </div>
+        )}
       </div>
     </main>
   );
