@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
@@ -15,7 +15,11 @@ import {
   Menu,
   X,
   LogOut,
-  PhoneCall
+  PhoneCall,
+  ChevronDown,
+  Mail,
+  MapPin,
+  BadgeCheck
 } from 'lucide-react';
 
 const TABS = [
@@ -59,12 +63,24 @@ export default function Navbar() {
   const { user, logout } = useAuth();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef(null);
 
   // Close mobile drawer on route/tab change
   const handleTabSelect = (tabId) => {
     setTab(tabId);
     setMobileMenuOpen(false);
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
     <header className="sticky top-0 z-40 w-full transition-colors duration-200">
@@ -199,15 +215,68 @@ export default function Navbar() {
               )}
             </button>
 
-            <button
-              onClick={logout}
-              className="flex items-center gap-2 rounded-full border border-rose-200 bg-white/90 px-3 py-2 text-xs font-bold text-rose-700 shadow-sm hover:bg-rose-50 dark:border-rose-900/60 dark:bg-slate-800 dark:text-rose-300 dark:hover:bg-rose-950/40"
-              title={user?.name || t('auth.logout', 'Sign Out')}
-              aria-label={t('auth.logout', 'Sign Out')}
-            >
-              <LogOut className="h-4 w-4" />
-              <span className="hidden sm:inline">{t('auth.logout', 'Sign Out')}</span>
-            </button>
+            <div className="relative" ref={profileRef}>
+              <button
+                onClick={() => setProfileOpen((open) => !open)}
+                className="flex items-center gap-2 rounded-full border border-pink-200/80 bg-white/90 py-1.5 pl-1.5 pr-2.5 text-left shadow-sm transition hover:border-pink-300 hover:bg-pink-50/80 hover:shadow-md dark:border-slate-700 dark:bg-slate-800/90 dark:hover:border-pink-800 dark:hover:bg-slate-700"
+                title={user?.name || 'Profile'}
+                aria-label={language === 'hi' ? 'प्रोफ़ाइल मेनू खोलें' : 'Open profile menu'}
+                aria-expanded={profileOpen}
+                aria-haspopup="menu"
+              >
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-pink-500 to-purple-600 text-xs font-black text-white shadow-sm">
+                  {(user?.name || 'U').trim().charAt(0).toUpperCase()}
+                </span>
+                <span className="hidden max-w-28 truncate text-xs font-bold text-slate-700 dark:text-slate-100 sm:block">
+                  {user?.name || 'Profile'}
+                </span>
+                <ChevronDown className={`h-3.5 w-3.5 text-slate-500 transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {profileOpen && (
+                <div role="menu" className="absolute right-0 mt-3 w-72 overflow-hidden rounded-2xl border border-white/80 bg-white/95 p-2 shadow-2xl shadow-slate-900/15 backdrop-blur-xl dark:border-slate-700 dark:bg-slate-900/95">
+                  <div className="rounded-xl bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50 p-4 dark:from-pink-950/40 dark:via-slate-800 dark:to-purple-950/40">
+                    <div className="flex items-center gap-3">
+                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-pink-500 to-purple-600 text-lg font-black text-white shadow-lg shadow-pink-500/20">
+                        {(user?.name || 'U').trim().charAt(0).toUpperCase()}
+                      </span>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-bold text-slate-900 dark:text-white">{user?.name || 'SakhiShakti member'}</p>
+                        <p className="truncate text-xs text-slate-500 dark:text-slate-400">{user?.role || 'USER'}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-1 px-2 py-3">
+                    {user?.email && (
+                      <div className="flex items-center gap-2.5 text-xs text-slate-600 dark:text-slate-300">
+                        <Mail className="h-3.5 w-3.5 shrink-0 text-pink-500" />
+                        <span className="truncate">{user.email}</span>
+                      </div>
+                    )}
+                    {user?.state && (
+                      <div className="flex items-center gap-2.5 text-xs text-slate-600 dark:text-slate-300">
+                        <MapPin className="h-3.5 w-3.5 shrink-0 text-pink-500" />
+                        <span className="truncate">{user.state}</span>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-2.5 text-xs text-emerald-700 dark:text-emerald-400">
+                      <BadgeCheck className="h-3.5 w-3.5 shrink-0" />
+                      <span>{language === 'hi' ? 'सत्यापित सत्र' : 'Signed in securely'}</span>
+                    </div>
+                  </div>
+                  <div className="border-t border-slate-100 pt-2 dark:border-slate-800">
+                    <button
+                      role="menuitem"
+                      onClick={() => { logout(); setProfileOpen(false); }}
+                      className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-xs font-bold text-rose-600 transition hover:bg-rose-50 dark:text-rose-300 dark:hover:bg-rose-950/40"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      {t('auth.logout', 'Sign Out')}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Mobile Menu Hamburger Button */}
             <button

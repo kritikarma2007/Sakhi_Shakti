@@ -1,5 +1,22 @@
 import React, { useState } from 'react';
-import { AlertCircle, ArrowRight, Eye, EyeOff, Heart, LockKeyhole, Mail, MapPin, Moon, Sun, UserRound } from 'lucide-react';
+import {
+  Activity,
+  AlertCircle,
+  ArrowRight,
+  ArrowUpRight,
+  Eye,
+  EyeOff,
+  Heart,
+  HeartHandshake,
+  LockKeyhole,
+  Mail,
+  MapPin,
+  Moon,
+  ShieldCheck,
+  Sparkles,
+  Sun,
+  UserRound
+} from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -82,10 +99,11 @@ export default function AuthPage() {
   const inputClass = 'w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-pink-500 dark:focus:ring-pink-950';
 
   return (
-    <main className="relative min-h-[calc(100vh-3rem)] overflow-hidden px-4 py-8 sm:px-6 lg:py-12">
+    <main className="auth-screen relative min-h-[calc(100vh-3rem)] overflow-hidden px-4 py-8 sm:px-6 lg:py-12">
       <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-        <div className="absolute -left-24 -top-20 h-72 w-72 rounded-full bg-pink-200/50 blur-3xl dark:bg-pink-900/20" />
-        <div className="absolute -bottom-28 -right-20 h-80 w-80 rounded-full bg-purple-200/50 blur-3xl dark:bg-purple-900/20" />
+        <div className="auth-orb auth-orb-one absolute -left-24 -top-20 h-72 w-72 rounded-full bg-pink-300/50 blur-3xl dark:bg-pink-800/25" />
+        <div className="auth-orb auth-orb-two absolute -bottom-28 -right-20 h-80 w-80 rounded-full bg-purple-300/50 blur-3xl dark:bg-purple-800/25" />
+        <div className="auth-grid absolute inset-0 opacity-30 dark:opacity-15" />
       </div>
 
       <div className="relative mx-auto flex max-w-6xl items-center justify-between">
@@ -116,31 +134,73 @@ export default function AuthPage() {
         </div>
       </div>
 
-      <div className="relative mx-auto mt-8 grid max-w-6xl items-center gap-10 lg:mt-14 lg:grid-cols-[1fr_0.85fr]">
-        <section className="hidden lg:block">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-pink-200 bg-white/70 px-4 py-2 text-sm font-semibold text-pink-700 dark:border-pink-900 dark:bg-slate-900/60 dark:text-pink-300">
-            <Heart className="h-4 w-4 fill-current" />
-            {isHindi ? 'आपकी साथी, हर कदम पर' : 'Your companion, every step'}
+      <div className="relative mx-auto mt-8 grid w-full max-w-7xl items-center gap-8 lg:mt-12 lg:grid-cols-[1.05fr_0.8fr] lg:gap-16">
+        <section className="auth-hero order-2 px-2 pb-10 text-center lg:order-1 lg:px-0 lg:pb-0 lg:text-left">
+          <div className="auth-art mx-auto mb-8" aria-hidden="true">
+            <div className="auth-art-orbit auth-art-orbit-outer" />
+            <div className="auth-art-orbit auth-art-orbit-inner" />
+            <div className="auth-art-halo" />
+            <div className="auth-art-flower">
+              <span className="auth-petal auth-petal-one" />
+              <span className="auth-petal auth-petal-two" />
+              <span className="auth-petal auth-petal-three" />
+              <span className="auth-petal auth-petal-four" />
+              <span className="auth-petal auth-petal-five" />
+              <span className="auth-flower-center">🌸</span>
+            </div>
+            <div className="auth-float-card auth-float-card-top">
+              <ShieldCheck className="h-5 w-5 text-emerald-500" />
+              <span>{isHindi ? 'सुरक्षित और निजी' : 'Safe & private'}</span>
+            </div>
+            <div className="auth-float-card auth-float-card-side">
+              <HeartHandshake className="h-5 w-5 text-pink-500" />
+              <span>{isHindi ? 'साथ में मजबूत' : 'Stronger together'}</span>
+            </div>
+            <div className="auth-float-card auth-float-card-bottom">
+              <Activity className="h-5 w-5 text-violet-500" />
+              <span>{isHindi ? 'देखभाल, हर दिन' : 'Care, every day'}</span>
+            </div>
+            <Sparkles className="auth-sparkle auth-sparkle-one h-5 w-5 text-amber-400" />
+            <Sparkles className="auth-sparkle auth-sparkle-two h-4 w-4 text-pink-400" />
           </div>
-          <h1 className="max-w-xl text-5xl font-black leading-tight tracking-tight text-slate-900 dark:text-white">
-            {copy.welcome}
-          </h1>
-          <p className="mt-5 max-w-lg text-lg leading-8 text-slate-600 dark:text-slate-300">
-            {isHindi
-              ? 'स्वास्थ्य जानकारी, सरकारी योजनाएं और समुदाय का सहयोग आसानी से पाएं।'
-              : 'Access helpful health information, government schemes, and community support.'}
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            {['🛡️ 24/7 SOS', '❤️ Health Hub', '📋 Govt Schemes'].map((feature) => (
-              <span key={feature} className="rounded-full border border-white bg-white/70 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-200">{feature}</span>
-            ))}
+
+          <div className="mx-auto max-w-2xl lg:mx-0">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-pink-200/80 bg-white/65 px-4 py-2 text-xs font-bold tracking-wide text-pink-700 shadow-sm backdrop-blur dark:border-pink-900/60 dark:bg-slate-900/60 dark:text-pink-300">
+              <Heart className="h-4 w-4 fill-current" />
+              {isHindi ? 'आपकी साथी, हर कदम पर' : 'YOUR COMPANION, EVERY STEP'}
+            </div>
+            <h1 className="text-4xl font-black leading-[1.12] tracking-tight text-slate-950 dark:text-white sm:text-5xl lg:text-6xl">
+              {isHindi ? (
+                <>आपकी दुनिया।<br /><span className="auth-gradient-text">आपकी शक्ति।</span></>
+              ) : (
+                <>Your world.<br /><span className="auth-gradient-text">Your strength.</span></>
+              )}
+            </h1>
+            <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-slate-600 dark:text-slate-300 sm:text-lg lg:mx-0">
+              {isHindi
+                ? 'स्वास्थ्य जानकारी, सुरक्षा और समुदाय का सहयोग — सब कुछ आपकी अपनी भाषा में।'
+                : 'Health guidance, everyday safety, and community support — made for you, in your language.'}
+            </p>
+            <div className="mt-7 flex flex-wrap justify-center gap-2.5 lg:justify-start">
+              {[
+                { label: isHindi ? '24/7 सुरक्षा' : '24/7 Safety', icon: ShieldCheck },
+                { label: isHindi ? 'स्वास्थ्य साथी' : 'Health companion', icon: Heart },
+                { label: isHindi ? 'समुदाय का साथ' : 'Community care', icon: HeartHandshake }
+              ].map(({ label, icon: Icon }) => (
+                <span key={label} className="inline-flex items-center gap-2 rounded-full border border-white/90 bg-white/75 px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-sm backdrop-blur dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-200">
+                  <Icon className="h-4 w-4 text-pink-500" />
+                  {label}
+                </span>
+              ))}
+            </div>
           </div>
         </section>
 
-        <section className="mx-auto w-full max-w-md rounded-3xl border border-white/80 bg-white/90 p-6 shadow-2xl shadow-pink-900/10 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/90 sm:p-8">
+        <section className="auth-form-card card-hover order-1 mx-auto w-full max-w-md rounded-[1.75rem] border border-white/80 bg-white/85 p-6 shadow-2xl shadow-pink-900/10 backdrop-blur-2xl dark:border-slate-700/80 dark:bg-slate-900/85 sm:p-8 lg:order-2">
           <div className="mb-6">
-            <p className="text-sm font-bold uppercase tracking-wider text-pink-600 dark:text-pink-400">
+            <p className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-pink-600 dark:text-pink-400">
               {isSignup ? copy.signup : copy.login}
+              <ArrowUpRight className="h-4 w-4" />
             </p>
             <h2 className="mt-2 text-2xl font-black text-slate-900 dark:text-white">
               {isSignup ? copy.signupSubtitle : copy.subtitle}
@@ -148,10 +208,10 @@ export default function AuthPage() {
           </div>
 
           <div className="mb-6 grid grid-cols-2 rounded-xl bg-slate-100 p-1 dark:bg-slate-800" role="tablist" aria-label={isHindi ? 'प्रमाणीकरण' : 'Authentication'}>
-            <button type="button" role="tab" aria-selected={!isSignup} onClick={() => { setMode('login'); setError(''); }} className={`rounded-lg px-3 py-2.5 text-sm font-bold ${!isSignup ? 'bg-white text-pink-700 shadow-sm dark:bg-slate-700 dark:text-pink-300' : 'text-slate-500 dark:text-slate-400'}`}>
+            <button type="button" role="tab" aria-selected={!isSignup} onClick={() => { setMode('login'); setError(''); }} className={`rounded-lg px-3 py-2.5 text-sm font-bold transition-all duration-300 ${!isSignup ? 'bg-white text-pink-700 shadow-sm dark:bg-slate-700 dark:text-pink-300' : 'text-slate-500 dark:text-slate-400 hover:text-pink-600 dark:hover:text-pink-300'}`}>
               {copy.login}
             </button>
-            <button type="button" role="tab" aria-selected={isSignup} onClick={() => { setMode('signup'); setError(''); }} className={`rounded-lg px-3 py-2.5 text-sm font-bold ${isSignup ? 'bg-white text-pink-700 shadow-sm dark:bg-slate-700 dark:text-pink-300' : 'text-slate-500 dark:text-slate-400'}`}>
+            <button type="button" role="tab" aria-selected={isSignup} onClick={() => { setMode('signup'); setError(''); }} className={`rounded-lg px-3 py-2.5 text-sm font-bold transition-all duration-300 ${isSignup ? 'bg-white text-pink-700 shadow-sm dark:bg-slate-700 dark:text-pink-300' : 'text-slate-500 dark:text-slate-400 hover:text-pink-600 dark:hover:text-pink-300'}`}>
               {copy.signup}
             </button>
           </div>
